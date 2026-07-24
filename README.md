@@ -24,8 +24,18 @@ Deploy [Hermes Agent](https://hermes-agent.nousresearch.com/) by Nous Research o
 
 1. Click the "Deploy on Railway" button above
 2. Set your LLM API key (OpenRouter, OpenAI, etc.) in Variables
-3. Open the generated URL to access the WebUI dashboard
+3. Open the generated URL — you'll hit a login screen (see **Dashboard Login** below)
 4. Connect messaging channels (Telegram, Discord, etc.)
+
+## Dashboard Login
+
+As of Nous Research's July 2026 update, the dashboard requires a login — it can no longer run fully open. On first boot, this template auto-generates a username/password and prints them to the deploy logs (Railway dashboard → Deployments → View Logs), e.g.:
+
+```
+[hermes-agent-railway] Dashboard login — username: admin  password: <generated>
+```
+
+This password is saved to the persistent volume, so it stays the same across restarts/redeploys — it won't rotate on you. To set your own instead of using the generated one, add `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD` as a Railway variable before first deploy.
 
 ## Environment Variables
 
@@ -33,6 +43,8 @@ Deploy [Hermes Agent](https://hermes-agent.nousresearch.com/) by Nous Research o
 |---|---|
 | `PORT` | Dashboard port (default: 9119) |
 | `HERMES_HOME` | Data directory (default: /opt/data) |
+| `HERMES_DASHBOARD_BASIC_AUTH_USERNAME` | Dashboard login username. Defaults to `admin`. |
+| `HERMES_DASHBOARD_BASIC_AUTH_PASSWORD` | Dashboard login password. Auto-generated and persisted on first boot if not set. |
 
 Configure LLM providers and messaging channels via the WebUI dashboard after deployment.
 
@@ -43,8 +55,8 @@ Configure LLM providers and messaging channels via the WebUI dashboard after dep
 ## Notes
 
 - **Persistent storage**: Volume at `/opt/data` stores configuration, memories, skills, and databases
-- **Security**: The WebUI dashboard is exposed publicly — configure authentication via the dashboard settings
-- **Upgrades**: Update the image tag in the Dockerfile to upgrade
+- **Security**: The dashboard is login-gated by default (see Dashboard Login above) — Nous Research made this mandatory in July 2026 after unauthenticated public dashboards were used as an attack entry point
+- **Upgrades**: This image is pinned by digest for reproducibility. Update the `FROM` line's digest in the Dockerfile to upgrade to a newer Hermes Agent release
 
 ## License
 

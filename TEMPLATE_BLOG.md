@@ -36,7 +36,7 @@ HERMES_HOME=/opt/data
 PORT=9119
 ```
 
-The gateway handles multi-channel messaging (Telegram, Discord, Slack, WhatsApp, WeChat) in the background. The dashboard binds to `0.0.0.0:9119` with the `--insecure` flag so Railway can route HTTPS traffic to it. All data — config, SQLite databases, skills, memories — lives in the `/opt/data` volume. No external database needed. After deployment, open the WebUI at your Railway URL, add an LLM provider key, and start chatting.
+The gateway handles multi-channel messaging (Telegram, Discord, Slack, WhatsApp, WeChat) in the background. The dashboard binds to `0.0.0.0:9119` so Railway can route HTTPS traffic to it, protected by an auto-generated login (username/password printed to the deploy logs on first boot, persisted across restarts). All data — config, SQLite databases, skills, memories — lives in the `/opt/data` volume. No external database needed. After deployment, grab your dashboard password from the logs, open the WebUI at your Railway URL, add an LLM provider key, and start chatting.
 
 ## Why Deploy Hermes Agent-self-hosted on Railway?
 
