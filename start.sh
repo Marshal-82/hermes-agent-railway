@@ -41,7 +41,10 @@ echo "[hermes-agent-railway] Dashboard login — username: $HERMES_DASHBOARD_BAS
 echo "[hermes-agent-railway] To set your own, add HERMES_DASHBOARD_BASIC_AUTH_PASSWORD as a Railway variable."
 
 # Gateway handles messaging channels (Telegram, Discord, etc.)
-hermes gateway run &
+#hermes gateway run &
 
 # Dashboard WebUI — bind to 0.0.0.0 so Railway can route to it
-exec hermes dashboard --host 0.0.0.0 --port "${PORT:-9119}" --no-open
+hermes config set platforms.api_server.host 0.0.0.0
+hermes config set platforms.api_server.port $PORT
+exec hermes gateway run --accept-hooks
+
