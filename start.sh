@@ -24,21 +24,22 @@ fi
 if [ -d /opt/hermes/mnemosyne/src ]; then
   export PYTHONPATH="/opt/hermes/mnemosyne/src:/opt/hermes/mnemosyne-plugin${PYTHONPATH:+:$PYTHONPATH}"
 fi
-# psycopg for the engine's Postgres adapter — the venv is uv-created (no
-# pip); bootstrap pip via ensurepip, then install. Use the venv python for
-# BOTH the check and the install (the system python never has psycopg).
-# NEVER fatal: a failed install must not stop the gateway (the provider
-# logs a clear error at use-time instead).
+# psycopg for the engine's Postgres adapter. The gateway service runs as
+# the `hermes` user and cannot write into the root-owned venv, so pip/
+# ensurepip can't bootstrap there. Instead install into a site dir on the
+# hermes-writable /opt/data volume with uv (present in the image) and add
+# it to PYTHONPATH. NEVER fatal: the provider logs a clear error at use-time.
 V="/opt/hermes/.venv/bin/python"
-echo "[hermes-agent-railway] venv python: $("$V" --version 2>&1 || echo MISSING)"
+SITE="/opt/data/mnemosyne-site"
+export PYTHONPATH="$SITE${PYTHONPATH:+:$PYTHONPATH}"
 if ! "$V" -c "import psycopg" 2>/dev/null; then
-  "$V" -m ensurepip --upgrade 2>&1 | tail -2 || true
-  "$V" -m pip install --no-cache-dir "psycopg[binary]>=3.1" 2>&1 | tail -4 || true
+  mkdir -p "$SITE" 2>/dev/null || true
+  uv pip install --python "$V" --target "$SITE" --no-cache "psycopg[binary]>=3.1" 2>&1 | tail -3 || true
 fi
 if "$V" -c "import psycopg" 2>/dev/null; then
   echo "[hermes-agent-railway] psycopg ready"
 else
-  echo "[hermes-agent-railway] WARNING psycopg missing in venv — Mnemosyne Postgres path unavailable"
+  echo "[hermes-agent-railway] WARNING psycopg missing — Mnemosyne Postgres path unavailable"
 fi
 if [ "${MNEMOSYNE_ENABLED:-false}" = "true" ]; then
   hermes config set memory.provider mnemosyne
