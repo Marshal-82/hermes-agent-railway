@@ -17,9 +17,12 @@ mkdir -p "$DATA_DIR"
 # Install the plugin into the Hermes home (plugins are auto-discovered from
 # <hermes-home>/plugins/memory/<name>/) and expose the engine import path.
 # Activation is the MNEMOSYNE_ENABLED Railway variable — the mem0-off switch.
-mkdir -p "$DATA_DIR/plugins/memory"
+mkdir -p "$DATA_DIR/plugins/memory" "$DATA_DIR/.hermes/plugins/memory"
 if [ -d /opt/hermes/mnemosyne-plugin ]; then
-  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/plugins/memory/mnemosyne"
+  # Hermes discovers memory providers from ~/.hermes/plugins/ — the hermes
+  # user's home IS $DATA_DIR (/opt/data) — plus the HERMES_HOME plugins dir.
+  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/.hermes/plugins/memory/mnemosyne" 2>/dev/null || true
+  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/plugins/memory/mnemosyne" 2>/dev/null || true
 fi
 if [ -d /opt/hermes/mnemosyne/src ]; then
   export PYTHONPATH="/opt/hermes/mnemosyne/src:/opt/hermes/mnemosyne-plugin${PYTHONPATH:+:$PYTHONPATH}"
