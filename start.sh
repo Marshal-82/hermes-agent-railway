@@ -30,9 +30,10 @@ fi
 # NEVER fatal: a failed install must not stop the gateway (the provider
 # logs a clear error at use-time instead).
 V="/opt/hermes/.venv/bin/python"
+echo "[hermes-agent-railway] venv python: $("$V" --version 2>&1 || echo MISSING)"
 if ! "$V" -c "import psycopg" 2>/dev/null; then
-  "$V" -m ensurepip --upgrade >/dev/null 2>&1 || true
-  "$V" -m pip install --no-cache-dir "psycopg[binary]>=3.1" >/dev/null 2>&1 || true
+  "$V" -m ensurepip --upgrade 2>&1 | tail -2 || true
+  "$V" -m pip install --no-cache-dir "psycopg[binary]>=3.1" 2>&1 | tail -4 || true
 fi
 if "$V" -c "import psycopg" 2>/dev/null; then
   echo "[hermes-agent-railway] psycopg ready"
