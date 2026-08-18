@@ -13,6 +13,22 @@ export HERMES_DASHBOARD_BASIC_AUTH_USERNAME="${HERMES_DASHBOARD_BASIC_AUTH_USERN
 DATA_DIR="${HERMES_HOME:-/opt/data}"
 mkdir -p "$DATA_DIR"
 
+# ── Mnemosyne memory provider ─────────────────────────────────────────
+# Install the plugin into the Hermes home (plugins are auto-discovered from
+# <hermes-home>/plugins/memory/<name>/) and expose the engine import path.
+# Activation is the MNEMOSYNE_ENABLED Railway variable — the mem0-off switch.
+mkdir -p "$DATA_DIR/plugins/memory"
+if [ -d /opt/hermes/mnemosyne-plugin ]; then
+  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/plugins/memory/mnemosyne"
+fi
+if [ -d /opt/hermes/mnemosyne/src ]; then
+  export PYTHONPATH="/opt/hermes/mnemosyne/src:/opt/hermes/mnemosyne-plugin${PYTHONPATH:+:$PYTHONPATH}"
+fi
+if [ "${MNEMOSYNE_ENABLED:-false}" = "true" ]; then
+  hermes config set memory.provider mnemosyne
+  echo "[hermes-agent-railway] Mnemosyne memory provider ACTIVE (memory.provider=mnemosyne)"
+fi
+
 # persist_or_generate <env-var-name> <file-name> <openssl-args...>
 # If the deployer already set the var (Railway variable), use it as-is and don't touch
 # the file. Otherwise reuse a previously-generated value from the volume if one exists,
@@ -47,4 +63,3 @@ echo "[hermes-agent-railway] To set your own, add HERMES_DASHBOARD_BASIC_AUTH_PA
 hermes config set platforms.api_server.host 0.0.0.0
 hermes config set platforms.api_server.port $PORT
 exec hermes gateway run --accept-hooks
-

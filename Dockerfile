@@ -9,6 +9,15 @@ ENV PORT=9119
 # change). Opting in to their sanctioned override rather than switching users.
 ENV HERMES_ALLOW_ROOT_GATEWAY=1
 
+# ── Mnemosyne memory provider (Odaro Memory Engine) ────────────────────
+# The plugin is baked into the image and installed into HERMES_HOME/plugins
+# by start.sh on boot (HERMES_HOME is a volume, so this survives redeploys).
+# Activate with MNEMOSYNE_ENABLED=true (Railway variable) — the mem0-off
+# switch. The engine import path is provided via PYTHONPATH in start.sh.
+COPY mnemosyne/ /opt/hermes/mnemosyne/
+COPY mnemosyne-plugin/ /opt/hermes/mnemosyne-plugin/
+RUN pip install --no-cache-dir "psycopg[binary]>=3.1"
+
 # Copy start script
 COPY start.sh /opt/hermes/start.sh
 RUN chmod +x /opt/hermes/start.sh

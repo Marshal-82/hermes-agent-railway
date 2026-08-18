@@ -1,0 +1,9 @@
+{
+  "name": "mnemosyne",
+  "version": "0.1.0",
+  "description": "Odaro Memory Engine — biomimetic memory provider for Hermes (0 LLM tokens on write/recall)",
+  "kind": "memory-provider",
+  "entry": "__init__.py",
+  "author": "Odaro AI",
+  "license": "proprietary"
+}
