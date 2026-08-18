@@ -136,7 +136,21 @@ class MnemosyneMemoryProvider(_HermesMemoryProvider):
         return "mnemosyne"
 
     def is_available(self) -> bool:
-        return os.environ.get("MNEMOSYNE_ENABLED", "").lower() in ("1", "true", "yes")
+        """Available when explicitly enabled AND backed by a database.
+
+        Fail-closed: with MNEMOSYNE_ENABLED=true but no
+        MNEMOSYNE_DATABASE_URL the provider refuses to run — ephemeral
+        in-memory memory in production silently loses data. Set
+        MNEMOSYNE_ALLOW_EPHEMERAL=true to opt into dev-only memory.
+        """
+        if os.environ.get("MNEMOSYNE_ENABLED", "").lower() not in ("1", "true", "yes"):
+            return False
+        if os.environ.get("MNEMOSYNE_DATABASE_URL"):
+            return True
+        if os.environ.get("MNEMOSYNE_ALLOW_EPHEMERAL", "").lower() in ("1", "true", "yes"):
+            return True
+        print("[mnemosyne] FAIL-CLOSED: MNEMOSYNE_ENABLED=true but MNEMOSYNE_DATABASE_URL is unset — provider unavailable (memory stays built-in)")
+        return False
 
     def initialize(self, session_id: str, **kwargs) -> None:
         tenant = kwargs.get("tenant") or _tenant_of(session_id)
