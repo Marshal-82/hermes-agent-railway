@@ -15,7 +15,9 @@ ENV HERMES_ALLOW_ROOT_GATEWAY=1
 # Activate with MNEMOSYNE_ENABLED=true (Railway variable) — the mem0-off
 # switch. The engine import path is provided via PYTHONPATH in start.sh.
 COPY mnemosyne/ /opt/hermes/mnemosyne/
-COPY mnemosyne-plugin/ /opt/hermes/mnemosyne-plugin/
+# Bundle the plugin like the first-party memory providers (mem0, honcho…):
+# Hermes auto-detects memory providers from /opt/hermes/plugins/memory/.
+COPY mnemosyne-plugin/ /opt/hermes/plugins/memory/mnemosyne/
 # psycopg is installed at RUNTIME in start.sh: the base image creates its
 # venv at container start (it does not exist during docker build), so the
 # build-time pip install cannot target the environment the gateway uses.

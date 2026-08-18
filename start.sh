@@ -14,18 +14,16 @@ DATA_DIR="${HERMES_HOME:-/opt/data}"
 mkdir -p "$DATA_DIR"
 
 # ── Mnemosyne memory provider ─────────────────────────────────────────
-# Install the plugin into the Hermes home (plugins are auto-discovered from
-# <hermes-home>/plugins/memory/<name>/) and expose the engine import path.
-# Activation is the MNEMOSYNE_ENABLED Railway variable — the mem0-off switch.
+# The plugin is BUNDLED at /opt/hermes/plugins/memory/mnemosyne (same as
+# the first-party providers); start.sh also mirrors it into the Hermes
+# home as a fallback and exposes the engine import path. Activation is the
+# MNEMOSYNE_ENABLED Railway variable — the mem0-off switch.
 mkdir -p "$DATA_DIR/plugins/memory" "$DATA_DIR/.hermes/plugins/memory"
-if [ -d /opt/hermes/mnemosyne-plugin ]; then
-  # Hermes discovers memory providers from ~/.hermes/plugins/ — the hermes
-  # user's home IS $DATA_DIR (/opt/data) — plus the HERMES_HOME plugins dir.
-  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/.hermes/plugins/memory/mnemosyne" 2>/dev/null || true
-  cp -r /opt/hermes/mnemosyne-plugin "$DATA_DIR/plugins/memory/mnemosyne" 2>/dev/null || true
+if [ -d /opt/hermes/plugins/memory/mnemosyne ]; then
+  cp -r /opt/hermes/plugins/memory/mnemosyne "$DATA_DIR/plugins/memory/mnemosyne" 2>/dev/null || true
 fi
 if [ -d /opt/hermes/mnemosyne/src ]; then
-  export PYTHONPATH="/opt/hermes/mnemosyne/src:/opt/hermes/mnemosyne-plugin${PYTHONPATH:+:$PYTHONPATH}"
+  export PYTHONPATH="/opt/hermes/mnemosyne/src${PYTHONPATH:+:$PYTHONPATH}"
 fi
 # psycopg for the engine's Postgres adapter. The gateway service runs as
 # the `hermes` user and cannot write into the root-owned venv, so pip/

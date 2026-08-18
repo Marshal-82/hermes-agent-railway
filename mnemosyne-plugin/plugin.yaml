@@ -1,0 +1,3 @@
+name: mnemosyne
+version: 0.1.0
+description: "Odaro Memory Engine — biomimetic long-term memory provider (0 LLM tokens on write/recall)"
