@@ -24,6 +24,12 @@ fi
 if [ -d /opt/hermes/mnemosyne/src ]; then
   export PYTHONPATH="/opt/hermes/mnemosyne/src:/opt/hermes/mnemosyne-plugin${PYTHONPATH:+:$PYTHONPATH}"
 fi
+# psycopg for the engine's Postgres adapter — the venv is only created at
+# container start, so this is a runtime install (idempotent, ~10s first boot)
+if ! python -c "import psycopg" 2>/dev/null; then
+  /opt/hermes/.venv/bin/pip install --no-cache-dir "psycopg[binary]>=3.1" 2>/dev/null \
+    || pip install --no-cache-dir "psycopg[binary]>=3.1"
+fi
 if [ "${MNEMOSYNE_ENABLED:-false}" = "true" ]; then
   hermes config set memory.provider mnemosyne
   echo "[hermes-agent-railway] Mnemosyne memory provider ACTIVE (memory.provider=mnemosyne)"
