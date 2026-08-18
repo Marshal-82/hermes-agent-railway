@@ -16,7 +16,9 @@ ENV HERMES_ALLOW_ROOT_GATEWAY=1
 # switch. The engine import path is provided via PYTHONPATH in start.sh.
 COPY mnemosyne/ /opt/hermes/mnemosyne/
 COPY mnemosyne-plugin/ /opt/hermes/mnemosyne-plugin/
-RUN pip install --no-cache-dir "psycopg[binary]>=3.1"
+# The base image's Python lives in the Hermes venv; `pip` is not on the
+# root PATH at build time, so call the venv's pip explicitly.
+RUN /opt/hermes/.venv/bin/pip install --no-cache-dir "psycopg[binary]>=3.1"
 
 # Copy start script
 COPY start.sh /opt/hermes/start.sh
